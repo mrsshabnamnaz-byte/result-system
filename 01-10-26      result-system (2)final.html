@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="ur" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Result Management System</title>
+<style>
+  :root{
+    --ink:#1d3557;
+    --ink-2:#2b4570;
+    --paper:#faf6ee;
+    --paper-2:#f2ecdd;
+    --line:#8b6f47;
+    --accent:#7a2e2e;
+    --good:#2f6b3a;
+    --bad:#a02b2b;
+    --text:#2b241a;
+    --muted:#6b5f4d;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--text);
+    font-family:'Georgia','Times New Roman',serif;
+    line-height:1.45;
+  }
+  header.app-header{
+    background:var(--ink); color:#fff; padding:16px 20px;
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  }
+  header.app-header img{height:40px; width:40px; object-fit:contain; background:#fff; border-radius:4px; padding:2px;}
+  header.app-header h1{font-size:19px; margin:0; font-weight:600; letter-spacing:.2px;}
+  header.app-header .sub{font-size:12px; color:#cbd5e6; margin-top:2px;}
+  nav.tabs{
+    display:flex; gap:2px; background:var(--paper-2); border-bottom:2px solid var(--line);
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
+  }
+  nav.tabs button{
+    font-family:inherit; font-size:14px; padding:11px 16px; border:none; background:transparent;
+    color:var(--ink-2); cursor:pointer; white-space:nowrap; border-bottom:3px solid transparent;
+  }
+  nav.tabs button.active{ border-bottom:3px solid var(--accent); color:var(--accent); font-weight:700; }
+  main{ max-width:1150px; margin:0 auto; padding:18px 16px 60px; }
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+  h2{ font-size:18px; color:var(--ink); border-bottom:1px solid var(--line); padding-bottom:6px; margin-top:6px;}
+  .card{ background:#fff; border:1px solid #ddd2b8; border-radius:6px; padding:16px; margin-bottom:16px; }
+  label{ display:block; font-size:13px; color:var(--muted); margin-bottom:4px; margin-top:10px; }
+  input[type=text], input[type=number], select, textarea{
+    font-family:inherit; font-size:14px; padding:8px 10px; border:1px solid #c9bd9d; border-radius:4px;
+    width:100%; background:#fffdf8;
+  }
+  input[type=file]{ font-size:13px; }
+  .row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .row > div{ flex:1; min-width:160px; }
+  button.btn{
+    font-family:inherit; font-size:14px; padding:9px 16px; border-radius:5px; border:1px solid var(--ink);
+    background:var(--ink); color:#fff; cursor:pointer; margin-top:12px; margin-right:8px;
+  }
+  button.btn.secondary{ background:#fff; color:var(--ink); }
+  button.btn.danger{ background:#fff; color:var(--bad); border-color:var(--bad); }
+  button.btn.small{ padding:5px 10px; font-size:12px; margin-top:0; }
+  table{ border-collapse:collapse; width:100%; font-size:13px; background:#fff; }
+  table th, table td{ border:1px solid var(--line); padding:6px 8px; text-align:center; }
+  table th{ background:var(--paper-2); color:var(--ink); font-weight:700; }
+  table td.left{ text-align:left; }
+  .table-wrap{ overflow-x:auto; }
+  .pill{ display:inline-block; padding:2px 9px; border-radius:20px; font-size:11px; font-weight:700; }
+  .pill.pass{ background:#e3f0e4; color:var(--good); }
+  .pill.fail{ background:#f6e2e2; color:var(--bad); }
+  .grade-A2{ color:#1a7a34; font-weight:700; }
+  .grade-A{ color:#2f6b3a; font-weight:700; }
+  .grade-B{ color:#2b6ca3; font-weight:700; }
+  .grade-C{ color:#a67c1e; font-weight:700; }
+  .grade-D{ color:#c9701f; font-weight:700; }
+  .grade-F{ color:var(--bad); font-weight:700; }
+  .muted{ color:var(--muted); font-size:12.5px; }
+  .subject-tag{ display:inline-flex; align-items:center; gap:6px; border:1px solid #c9bd9d; border-radius:20px; padding:4px 10px; margin:3px; font-size:13px; background:#fffdf8;}
+  .subject-tag button{ border:none; background:transparent; color:var(--bad); cursor:pointer; font-weight:700; }
+  .hint{ font-size:12px; color:var(--muted); margin-top:6px; }
+  select#classSel, select#termSel, select#reportTermSel, select#regTermSel{ max-width:220px; display:inline-block; }
+  .toolbar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  .empty-state{ text-align:center; padding:40px 20px; color:var(--muted); }
+
+  /* Report card */
+  .report-card{
+    background:#fff; border:2px solid var(--line); padding:18px; margin:0 auto 26px; max-width:760px;
+    page-break-after:always;
+  }
+  .report-card .rc-head{ display:flex; align-items:center; gap:12px; border-bottom:2px solid var(--ink); padding-bottom:10px; margin-bottom:12px; }
+  .report-card .rc-head img{ height:52px; width:52px; object-fit:contain; }
+  .report-card .rc-head h3{ margin:0; color:var(--ink); font-size:20px; }
+  .report-card .rc-head .rc-sub{ font-size:12px; color:var(--muted); }
+  .report-card .rc-meta{ display:flex; flex-wrap:wrap; gap:4px 22px; font-size:13.5px; margin-bottom:12px; }
+  .report-card .rc-meta b{ color:var(--ink); }
+  .report-card table{ margin-bottom:10px; }
+  .report-card .rc-summary{ display:flex; flex-wrap:wrap; gap:10px 26px; margin-top:10px; font-size:14px; }
+  .report-card .rc-summary div{ min-width:110px; }
+  .report-card .rc-summary b{ display:block; color:var(--ink); font-size:16px; }
+  .rc-remarks{ margin-top:12px; }
+  .rc-remarks textarea{ min-height:46px; }
+  .rc-sign{ display:flex; justify-content:space-between; margin-top:34px; font-size:12.5px; }
+  .rc-sign div{ border-top:1px solid var(--text); padding-top:4px; width:150px; text-align:center; }
+
+  @media print{
+    header.app-header, nav.tabs, .no-print{ display:none !important; }
+    body{ background:#fff; }
+    main{ padding:0; max-width:100%; }
+    .panel{ display:none !important; }
+    .panel.active{ display:block !important; }
+    .card{ border:none; padding:0; }
+    .report-card{ box-shadow:none; }
+    .register-print{ page-break-inside:auto; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <img id="headerLogo" src="" alt="" style="display:none;">
+  <div>
+    <h1 id="headerSchoolName">School Result Management System</h1>
+    <div class="sub">Result / Marks Register Automation</div>
+  </div>
+</header>
+
+<nav class="tabs no-print">
+  <button data-tab="setup" class="active">1. Setup</button>
+  <button data-tab="students">2. Students</button>
+  <button data-tab="marks">3. Marks Entry</button>
+  <button data-tab="reports">4. Report Cards</button>
+  <button data-tab="register">5. Marks Register</button>
+  <button data-tab="export">6. Export</button>
+</nav>
+
+<main>
+
+<!-- ===================== SETUP ===================== -->
+<section class="panel active" id="panel-setup">
+  <h2>School Setup</h2>
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>School Name</label>
+        <input type="text" id="schoolName" placeholder="e.g. Al-Noor Public School">
+      </div>
+      <div>
+        <label>School Logo</label>
+        <label for="schoolLogo" class="btn secondary" style="display:inline-block; margin-top:0; cursor:pointer;">📁 Choose Logo Image</label>
+        <input type="file" id="schoolLogo" accept="image/*" style="display:block; margin-top:8px;">
+        <div class="hint">Agar "Choose Logo Image" par tap karne se kuch na ho, to ye file download kar ke apne phone/computer ke normal browser (Chrome/Safari) mein open karein — us case mein file-choose normal kaam karega. Iske ilawa neeche image ka link bhi paste kar sakte hain.</div>
+        <label style="margin-top:10px;">Ya Logo Image ka Link (URL) paste karein</label>
+        <input type="text" id="schoolLogoUrl" placeholder="https://example.com/logo.png">
+      </div>
+    </div>
+    <button class="btn" id="saveSchoolBtn">Save School Info</button>
+    <div class="hint" id="schoolSaveMsg"></div>
+  </div>
+
+  <h2>Class / Section</h2>
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>Class</label>
+        <select id="setupClass">
+          <option value="">Select Class</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+          <option>5</option><option>6</option><option>7</option><option>8</option>
+        </select>
+      </div>
+      <div>
+        <label>Section (optional)</label>
+        <input type="text" id="setupSection" placeholder="e.g. A">
+      </div>
+    </div>
+    <button class="btn" id="loadClassBtn">Open / Create This Class</button>
+    <div class="hint">Class 1–2 me subjects khud English, Urdu, Maths, Islamiat, G.Science, Art set ho jayenge (Art sirf grading). Class 3–8 me poora subject set aayega. Dono jagah aap subjects manually edit kar sakte hain.</div>
+  </div>
+
+  <div class="card" id="subjectsCard" style="display:none;">
+    <h2 style="border:none; margin-top:0;">Subjects — Class <span id="currentClassLabel"></span></h2>
+    <div id="subjectList"></div>
+    <div class="row" style="margin-top:10px;">
+      <div>
+        <label>Add Subject</label>
+        <input type="text" id="newSubjectName" placeholder="Subject name">
+      </div>
+      <div style="display:flex; align-items:flex-end;">
+        <label style="display:flex; align-items:center; gap:6px; margin-bottom:0;">
+          <input type="checkbox" id="newSubjectHasMarks" checked style="width:auto;"> Has numeric marks (uncheck for grading-only like Art)
+        </label>
+      </div>
+    </div>
+    <button class="btn secondary" id="addSubjectBtn">+ Add Subject</button>
+    <div class="hint">Current class ke liye active: <b id="activeClassTag"></b></div>
+  </div>
+</section>
+
+<!-- ===================== STUDENTS ===================== -->
+<section class="panel" id="panel-students">
+  <h2>Students <span class="muted" id="studentsClassTag"></span></h2>
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>Roll No (1–40)</label>
+        <input type="number" id="stuRoll" min="1" max="40">
+      </div>
+      <div>
+        <label>Student Name</label>
+        <input type="text" id="stuName">
+      </div>
+      <div>
+        <label>Father's Name</label>
+        <input type="text" id="stuFather">
+      </div>
+    </div>
+    <button class="btn" id="addStudentBtn">+ Add Student</button>
+  </div>
+
+  <div class="card">
+    <label>Bulk Add (paste list — one student per line: <code>Name, Father's Name</code>)</label>
+    <textarea id="bulkStudents" rows="5" placeholder="Ali Khan, Ahmed Khan&#10;Sara Malik, Imran Malik"></textarea>
+    <button class="btn secondary" id="bulkAddBtn">Upload List</button>
+    <div class="hint"><b>Zaroori:</b> har line mein Name aur Father's Name ke darmiyan comma (,) zaroor lagayein — e.g. <code>Ali Khan, Ahmed Khan</code>. Bina comma ke line add nahi hogi. Roll numbers khud 1 se assign honge, max 40 students per class-section.</div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar" style="margin-bottom:0;">
+      <span class="muted">Total students: <b id="studentCountTag">0</b></span>
+      <button class="btn danger small" id="removeAllStudentsBtn" style="margin-left:auto;">🗑 Remove All Students (this class)</button>
+    </div>
+    <div class="table-wrap" style="margin-top:10px;">
+      <table id="studentsTable">
+        <thead><tr><th>Roll</th><th>Name</th><th>Father's Name</th><th class="no-print">Action</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MARKS ENTRY ===================== -->
+<section class="panel" id="panel-marks">
+  <h2>Marks Entry <span class="muted" id="marksClassTag"></span></h2>
+  <div class="toolbar no-print">
+    <label style="margin:0;">Term:</label>
+    <select id="termSel">
+      <option value="term1">1st Term Exam (MM 50)</option>
+      <option value="midterm">Mid Term Exam (MM 50)</option>
+      <option value="final">Final / Annual Exam (MM 100)</option>
+    </select>
+    <button class="btn small" id="saveMarksBtn">Save Marks</button>
+    <span class="hint" id="marksSaveMsg"></span>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table id="marksTable"></table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== REPORT CARDS ===================== -->
+<section class="panel" id="panel-reports">
+  <h2>Report Cards <span class="muted" id="reportsClassTag"></span></h2>
+  <div class="toolbar no-print">
+    <label style="margin:0;">Show:</label>
+    <select id="reportTermSel">
+      <option value="term1">1st Term Result</option>
+      <option value="midterm">Mid Term Result</option>
+      <option value="final">Final Exam Result</option>
+      <option value="cumulative">Cumulative Final Result (1st + Mid + Final)</option>
+    </select>
+    <label style="margin:0;">Student:</label>
+    <select id="reportStudentSel"><option value="all">All Students</option></select>
+    <button class="btn small" id="printReportsBtn">Print</button>
+  </div>
+  <div id="reportsOutput"></div>
+</section>
+
+<!-- ===================== MARKS REGISTER ===================== -->
+<section class="panel" id="panel-register">
+  <h2>Marks Register <span class="muted" id="registerClassTag"></span></h2>
+  <div class="toolbar no-print">
+    <label style="margin:0;">Term:</label>
+    <select id="regTermSel">
+      <option value="term1">1st Term Exam</option>
+      <option value="midterm">Mid Term Exam</option>
+      <option value="final">Final / Annual Exam</option>
+      <option value="cumulative">Cumulative (Aggregate 200)</option>
+    </select>
+    <button class="btn small" id="printRegisterBtn">Print Register</button>
+  </div>
+  <div class="card table-wrap register-print">
+    <table id="registerTable"></table>
+  </div>
+</section>
+
+<!-- ===================== EXPORT ===================== -->
+<section class="panel" id="panel-export">
+  <h2>Export to Excel <span class="muted" id="exportClassTag"></span></h2>
+  <div class="card">
+    <p class="muted">Is class-section ka poora data (students, teeno terms ki marks, total, percentage, grade, position) ek file mein export hoga — ye Excel, WPS, Google Sheets sab mein khul jati hai.</p>
+    <button class="btn" id="exportCsvBtn">⬇ Download Result (CSV)</button>
+  </div>
+
+  <h2>Backup / Restore (Sab Classes)</h2>
+  <div class="card">
+    <p class="muted">App update hone par ya device badalne par data mehfooz rakhne ke liye poora data (sab classes + school info) ek backup file mein save karein. Zarurat par usi file se wapas load kar lein.</p>
+    <button class="btn secondary" id="backupBtn">⬇ Download Backup (JSON)</button>
+    <div style="margin-top:14px;">
+      <label>Restore from Backup File</label>
+      <input type="file" id="restoreFile" accept="application/json">
+      <button class="btn secondary" id="restoreBtn" style="margin-top:8px;">↑ Restore Now</button>
+    </div>
+    <div class="hint" id="backupMsg"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- constants ---------------- */
+const TERM_MAX = { term1:50, midterm:50, final:100 };
+const TERM_LABEL = { term1:'1st Term', midterm:'Mid Term', final:'Final/Annual' };
+const DEFAULT_SUBJECTS_LOW = [ // class 1-2
+  {id:'eng', name:'English', hasMarks:true},
+  {id:'urd', name:'Urdu', hasMarks:true},
+  {id:'mth', name:'Maths', hasMarks:true},
+  {id:'isl', name:'Islamiat', hasMarks:true},
+  {id:'gsc', name:'G.Science', hasMarks:true},
+  {id:'art', name:'Art', hasMarks:false}
+];
+const DEFAULT_SUBJECTS_HIGH = [ // class 3-8
+  {id:'eng', name:'English', hasMarks:true},
+  {id:'urd', name:'Urdu', hasMarks:true},
+  {id:'mth', name:'Mathematics', hasMarks:true},
+  {id:'gsc', name:'G.Science/Chemistry', hasMarks:true},
+  {id:'sst', name:'S.Studies', hasMarks:true},
+  {id:'isl', name:'Islamiat', hasMarks:true},
+  {id:'snd', name:'Sindhi', hasMarks:true},
+  {id:'bio', name:'Biology/Comp.Studies', hasMarks:true},
+  {id:'phy', name:'Physics', hasMarks:true},
+  {id:'art', name:'Art', hasMarks:false}
+];
+const GRADE_OPTIONS = ['A+','A','B','C','D','F'];
+
+/* ---------------- state ---------------- */
+let school = { name:'', logo:'' };
+let currentClass = null; // e.g. "3-A" or "3"
+let classData = null; // loaded object for currentClass
+
+/* ---------------- storage helpers (works inside Claude preview AND in a normal browser) ---------------- */
+const LS_PREFIX = 'rsm:';
+function hasClaudeStorage(){
+  return (typeof window.storage !== 'undefined') && window.storage && typeof window.storage.set === 'function';
+}
+async function storeGet(key){
+  let val = null;
+  if(hasClaudeStorage()){
+    try{
+      const r = await window.storage.get(key,false);
+      if(r && r.value!=null) val = JSON.parse(r.value);
+    }catch(e){ /* not found on this backend, try localStorage below */ }
+  }
+  if(val===null){
+    try{
+      const raw = localStorage.getItem(LS_PREFIX+key);
+      if(raw!=null) val = JSON.parse(raw);
+    }catch(e){ /* ignore */ }
+  }
+  return val;
+}
+async function storeSet(key, value){
+  let claudeOk = false;
+  if(hasClaudeStorage()){
+    try{
+      const res = await window.storage.set(key, JSON.stringify(value), false);
+      claudeOk = !!res;
+    }catch(e){ claudeOk = false; }
+  }
+  try{
+    localStorage.setItem(LS_PREFIX+key, JSON.stringify(value));
+    return true;
+  }catch(e){
+    console.error('storage set failed', e);
+    return claudeOk;
+  }
+}
+async function storeListPrefix(prefix){
+  // returns array of full key names matching prefix, merging Claude storage + localStorage
+  const set = new Set();
+  if(hasClaudeStorage()){
+    try{
+      const listRes = await window.storage.list(prefix, false);
+      if(listRes && listRes.keys){
+        listRes.keys.forEach(k=> set.add((typeof k==='string') ? k : k.key));
+      }
+    }catch(e){ /* ignore */ }
+  }
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const lsKey = localStorage.key(i);
+      if(lsKey && lsKey.indexOf(LS_PREFIX+prefix)===0){
+        set.add(lsKey.slice(LS_PREFIX.length));
+      }
+    }
+  }catch(e){ /* ignore */ }
+  return Array.from(set);
+}
+
+/* ---------------- grading logic ---------------- */
+function gradeFromPercent(p){
+  if(p>=80) return 'A+';
+  if(p>=70) return 'A';
+  if(p>=60) return 'B';
+  if(p>=50) return 'C';
+  if(p>=40) return 'D';
+  return 'F';
+}
+function gradeClass(g){
+  return {'A+':'grade-A2','A':'grade-A','B':'grade-B','C':'grade-C','D':'grade-D','F':'grade-F'}[g] || '';
+}
+function autoRemark(grade){
+  return {
+    'A+':'Excellent performance. Keep it up.',
+    'A':'Very good performance.',
+    'B':'Good performance, can improve further.',
+    'C':'Satisfactory. Needs more attention.',
+    'D':'Needs significant improvement.',
+    'F':'Unsatisfactory. Serious improvement required.'
+  }[grade] || '';
+}
+
+/* ---------------- class key helpers ---------------- */
+function classKey(cls, section){
+  return section ? (cls + '-' + section.trim().toUpperCase()) : String(cls);
+}
+function classGroupSubjects(cls){
+  const n = parseInt(cls,10);
+  return n<=2 ? DEFAULT_SUBJECTS_LOW : DEFAULT_SUBJECTS_HIGH;
+}
+function dataKey(ck){ return 'class-data:' + ck; }
+
+function emptyClassData(cls){
+  return {
+    classNo: cls,
+    subjects: JSON.parse(JSON.stringify(classGroupSubjects(cls))),
+    students: [], // {id, roll, name, father}
+    marks: {},    // studentId -> term -> subjectId -> number
+    artGrade: {}, // studentId -> term -> 'A+'
+    attendance: {}, // studentId -> term -> string
+    remarks: {}   // studentId -> term(or 'cumulative') -> string (manual override)
+  };
+}
+
+/* ---------------- init ---------------- */
+async function init(){
+  const s = await storeGet('school-info');
+  if(s){ school = s; applySchoolToUI(); }
+  bindNav();
+  bindSetup();
+  bindStudents();
+  bindMarks();
+  bindReports();
+  bindRegister();
+  bindExport();
+  bindBackupRestore();
+  const last = await storeGet('app-last-class');
+  if(last && last.cls){
+    await openClass(last.cls, last.section);
+  }
+}
+document.addEventListener('DOMContentLoaded', init);
+
+function applySchoolToUI(){
+  document.getElementById('schoolName').value = school.name || '';
+  document.getElementById('headerSchoolName').textContent = school.name || 'School Result Management System';
+  const img = document.getElementById('headerLogo');
+  if(school.logo){ img.src = school.logo; img.style.display='inline-block'; } else { img.style.display='none'; }
+}
+
+/* ---------------- nav ---------------- */
+function bindNav(){
+  document.querySelectorAll('nav.tabs button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('main .panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+      if(btn.dataset.tab==='reports') renderReports();
+      if(btn.dataset.tab==='register') renderRegister();
+      if(btn.dataset.tab==='marks') renderMarksTable();
+      if(btn.dataset.tab==='students') renderStudentsTable();
+    });
+  });
+}
+
+/* ---------------- open/load a class ---------------- */
+async function openClass(cls, section){
+  const ck = classKey(cls, section);
+  currentClass = ck;
+  let d = await storeGet(dataKey(ck));
+  if(!d){ d = emptyClassData(cls); await storeSet(dataKey(ck), d); }
+  classData = d;
+  await storeSet('app-last-class', {cls, section: section||''});
+  document.getElementById('setupClass').value = cls;
+  document.getElementById('setupSection').value = section||'';
+  document.getElementById('currentClassLabel').textContent = ck;
+  document.getElementById('activeClassTag').textContent = ck;
+  document.getElementById('subjectsCard').style.display = 'block';
+  ['studentsClassTag','marksClassTag','reportsClassTag','registerClassTag','exportClassTag'].forEach(id=>{
+    document.getElementById(id).textContent = '— Class ' + ck;
+  });
+  renderSubjectList();
+  renderStudentsTable();
+  renderMarksTable();
+}
+
+/* ---------------- setup ---------------- */
+function bindSetup(){
+  document.getElementById('saveSchoolBtn').addEventListener('click', async ()=>{
+    school.name = document.getElementById('schoolName').value.trim();
+    const fileInput = document.getElementById('schoolLogo');
+    const urlInput = document.getElementById('schoolLogoUrl').value.trim();
+    const finish = async ()=>{
+      await storeSet('school-info', school);
+      applySchoolToUI();
+      document.getElementById('schoolSaveMsg').textContent = 'Saved ✓';
+      setTimeout(()=>document.getElementById('schoolSaveMsg').textContent='',1800);
+    };
+    if(fileInput.files && fileInput.files[0]){
+      const reader = new FileReader();
+      reader.onload = async (e)=>{ school.logo = e.target.result; await finish(); };
+      reader.readAsDataURL(fileInput.files[0]);
+    } else if(urlInput){
+      school.logo = urlInput;
+      await finish();
+    } else { await finish(); }
+  });
+
+  document.getElementById('loadClassBtn').addEventListener('click', async ()=>{
+    const cls = document.getElementById('setupClass').value;
+    if(!cls){ alert('Class select karein'); return; }
+    const section = document.getElementById('setupSection').value;
+    await openClass(cls, section);
+  });
+
+  document.getElementById('addSubjectBtn').addEventListener('click', async ()=>{
+    if(!classData){ alert('Pehle class open karein'); return; }
+    const name = document.getElementById('newSubjectName').value.trim();
+    if(!name) return;
+    const hasMarks = document.getElementById('newSubjectHasMarks').checked;
+    const id = 'sub_' + Date.now();
+    classData.subjects.push({id, name, hasMarks});
+    await storeSet(dataKey(currentClass), classData);
+    document.getElementById('newSubjectName').value='';
+    renderSubjectList();
+    renderMarksTable();
+  });
+}
+
+function renderSubjectList(){
+  const wrap = document.getElementById('subjectList');
+  wrap.innerHTML = '';
+  classData.subjects.forEach((s)=>{
+    const tag = document.createElement('span');
+    tag.className = 'subject-tag';
+    tag.innerHTML = `<span>${s.name}${s.hasMarks? '' : ' (grading only)'}</span> <button data-id="${s.id}">✕</button>`;
+    tag.querySelector('button').addEventListener('click', async ()=>{
+      classData.subjects = classData.subjects.filter(x=>x.id!==s.id);
+      await storeSet(dataKey(currentClass), classData);
+      renderSubjectList();
+      renderMarksTable();
+    });
+    wrap.appendChild(tag);
+  });
+}
+
+/* ---------------- students ---------------- */
+function bindStudents(){
+  document.getElementById('addStudentBtn').addEventListener('click', async ()=>{
+    if(!requireClass()) return;
+    const roll = parseInt(document.getElementById('stuRoll').value,10);
+    const name = document.getElementById('stuName').value.trim();
+    const father = document.getElementById('stuFather').value.trim();
+    if(!roll || roll<1 || roll>40){ alert('Roll No 1 se 40 ke darmiyan hona chahiye'); return; }
+    if(!name){ alert('Student ka naam likhein'); return; }
+    if(classData.students.length>=40 && !classData.students.find(s=>s.roll===roll)){ alert('Is class me already 40 students hain'); return; }
+    if(classData.students.find(s=>s.roll===roll)){ alert('Ye Roll No already mojood hai'); return; }
+    classData.students.push({id:'stu_'+Date.now()+Math.random().toString(36).slice(2,6), roll, name, father});
+    classData.students.sort((a,b)=>a.roll-b.roll);
+    await storeSet(dataKey(currentClass), classData);
+    document.getElementById('stuRoll').value=''; document.getElementById('stuName').value=''; document.getElementById('stuFather').value='';
+    renderStudentsTable(); renderMarksTable();
+  });
+
+  document.getElementById('bulkAddBtn').addEventListener('click', async ()=>{
+    if(!requireClass()) return;
+    const lines = document.getElementById('bulkStudents').value.split('\n').map(l=>l.trim()).filter(Boolean);
+    if(lines.length===0){ alert('Pehle list paste karein.'); return; }
+    const badLines = [];
+    lines.forEach((line, idx)=>{ if(!line.includes(',')) badLines.push(`Line ${idx+1}: "${line}"`); });
+    if(badLines.length>0){
+      alert('Ye lines mein comma (,) missing hai, isliye Father\'s Name alag nahi ho sakta. Format: Name, Father\'s Name\n\n' + badLines.join('\n') + '\n\nInhein theek karke dobara Upload karein. Baqi sahi lines add ho jayengi.');
+    }
+    let usedRolls = new Set(classData.students.map(s=>s.roll));
+    let nextRoll = 1;
+    function findRoll(){ while(usedRolls.has(nextRoll) && nextRoll<=40) nextRoll++; return nextRoll; }
+    let added=0;
+    for(const line of lines){
+      if(!line.includes(',')) continue; // skip invalid lines, already warned above
+      if(classData.students.length + added >= 40) break;
+      const parts = line.split(',');
+      const name = (parts[0]||'').trim();
+      const father = (parts[1]||'').trim();
+      if(!name) continue;
+      const roll = findRoll();
+      if(roll>40) break;
+      usedRolls.add(roll);
+      classData.students.push({id:'stu_'+Date.now()+Math.random().toString(36).slice(2,6), roll, name, father});
+      added++;
+    }
+    classData.students.sort((a,b)=>a.roll-b.roll);
+    await storeSet(dataKey(currentClass), classData);
+    if(added>0) document.getElementById('bulkStudents').value = badLines.length>0 ? lines.filter(l=>!l.includes(',')).join('\n') : '';
+    renderStudentsTable(); renderMarksTable();
+  });
+
+  document.getElementById('removeAllStudentsBtn').addEventListener('click', async ()=>{
+    if(!requireClass()) return;
+    if(classData.students.length===0){ alert('Is class mein koi student nahi hai.'); return; }
+    if(!confirm(`Kya aap ${classData.students.length} students (aur unki marks) is class se HATANA chahte hain? Ye wapas nahi ho sakta.`)) return;
+    classData.students = [];
+    classData.marks = {};
+    classData.artGrade = {};
+    classData.attendance = {};
+    classData.remarks = {};
+    await storeSet(dataKey(currentClass), classData);
+    renderStudentsTable(); renderMarksTable();
+  });
+}
+
+function renderStudentsTable(){
+  const tbody = document.querySelector('#studentsTable tbody');
+  tbody.innerHTML='';
+  if(!classData){ tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Pehle Setup tab se class open karein</td></tr>'; return; }
+  const countTag = document.getElementById('studentCountTag');
+  if(countTag) countTag.textContent = classData.students.length;
+  classData.students.forEach(s=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${s.roll}</td><td class="left">${s.name}</td><td class="left">${s.father||''}</td>
+      <td class="no-print"><button class="btn secondary small" data-edit="${s.id}">Edit</button> <button class="btn danger small" data-id="${s.id}">Remove</button></td>`;
+    tr.querySelector('button[data-id]').addEventListener('click', async ()=>{
+      if(!confirm('Ye student remove karein?')) return;
+      classData.students = classData.students.filter(x=>x.id!==s.id);
+      await storeSet(dataKey(currentClass), classData);
+      renderStudentsTable(); renderMarksTable();
+    });
+    tr.querySelector('button[data-edit]').addEventListener('click', async ()=>{
+      const newName = prompt('Student ka sahi Naam likhein:', s.name);
+      if(newName===null) return;
+      const newFather = prompt("Father's Name likhein:", s.father||'');
+      if(newFather===null) return;
+      if(!newName.trim()){ alert('Naam khali nahi ho sakta'); return; }
+      s.name = newName.trim();
+      s.father = newFather.trim();
+      await storeSet(dataKey(currentClass), classData);
+      renderStudentsTable();
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+function requireClass(){
+  if(!classData){ alert('Pehle Setup tab se class open/select karein'); return false; }
+  return true;
+}
+
+/* ---------------- marks entry ---------------- */
+function bindMarks(){
+  document.getElementById('termSel').addEventListener('change', renderMarksTable);
+  document.getElementById('saveMarksBtn').addEventListener('click', async ()=>{
+    if(!requireClass()) return;
+    const term = document.getElementById('termSel').value;
+    classData.students.forEach(stu=>{
+      classData.subjects.forEach(sub=>{
+        if(sub.hasMarks){
+          const el = document.getElementById(`mk_${stu.id}_${sub.id}`);
+          if(el){
+            const v = el.value === '' ? null : Math.max(0, Math.min(TERM_MAX[term], parseFloat(el.value)));
+            classData.marks[stu.id] = classData.marks[stu.id] || {};
+            classData.marks[stu.id][term] = classData.marks[stu.id][term] || {};
+            classData.marks[stu.id][term][sub.id] = v;
+          }
+        } else {
+          const el = document.getElementById(`gr_${stu.id}_${sub.id}`);
+          if(el){
+            classData.artGrade[stu.id] = classData.artGrade[stu.id] || {};
+            classData.artGrade[stu.id][term] = classData.artGrade[stu.id][term] || {};
+            classData.artGrade[stu.id][term][sub.id] = el.value;
+          }
+        }
+      });
+      const attEl = document.getElementById(`att_${stu.id}`);
+      if(attEl){
+        classData.attendance[stu.id] = classData.attendance[stu.id] || {};
+        classData.attendance[stu.id][term] = attEl.value;
+      }
+      const remEl = document.getElementById(`rem_${stu.id}`);
+      if(remEl){
+        classData.remarks[stu.id] = classData.remarks[stu.id] || {};
+        classData.remarks[stu.id][term] = remEl.value;
+      }
+    });
+    const ok = await storeSet(dataKey(currentClass), classData);
+    document.getElementById('marksSaveMsg').textContent = ok ? 'Marks Saved ✓' : 'Save failed';
+    setTimeout(()=>document.getElementById('marksSaveMsg').textContent='',1800);
+  });
+}
+
+function renderMarksTable(){
+  const table = document.getElementById('marksTable');
+  table.innerHTML='';
+  if(!classData){ table.innerHTML = '<tr><td class="empty-state">Pehle Setup tab se class open karein</td></tr>'; return; }
+  const term = document.getElementById('termSel').value;
+  const max = TERM_MAX[term];
+  let thead = '<thead><tr><th>Roll</th><th>Name</th>';
+  classData.subjects.forEach(s=> thead += `<th>${s.name}${s.hasMarks? ' /'+max : ''}</th>`);
+  thead += '<th>Attendance</th><th>Remarks</th></tr></thead>';
+  let tbody = '<tbody>';
+  classData.students.forEach(stu=>{
+    tbody += `<tr><td>${stu.roll}</td><td class="left">${stu.name}</td>`;
+    classData.subjects.forEach(sub=>{
+      if(sub.hasMarks){
+        const v = (classData.marks[stu.id] && classData.marks[stu.id][term] && classData.marks[stu.id][term][sub.id]!=null) ? classData.marks[stu.id][term][sub.id] : '';
+        tbody += `<td><input type="number" min="0" max="${max}" style="width:64px;text-align:center;" id="mk_${stu.id}_${sub.id}" value="${v}"></td>`;
+      } else {
+        const v = (classData.artGrade[stu.id] && classData.artGrade[stu.id][term] && classData.artGrade[stu.id][term][sub.id]) || '';
+        tbody += `<td><select id="gr_${stu.id}_${sub.id}" style="width:70px;"><option value="">-</option>${GRADE_OPTIONS.map(g=>`<option ${g===v?'selected':''}>${g}</option>`).join('')}</select></td>`;
+      }
+    });
+    const av = (classData.attendance[stu.id] && classData.attendance[stu.id][term]) || '';
+    tbody += `<td><input type="text" style="width:70px;text-align:center;" id="att_${stu.id}" value="${av}" placeholder="e.g. 45/50"></td>`;
+    const rv = (classData.remarks[stu.id] && classData.remarks[stu.id][term]) || '';
+    tbody += `<td><input type="text" style="width:170px;" id="rem_${stu.id}" value="${rv.replace(/"/g,'&quot;')}" placeholder="Auto-generate hoga agar khali chora"></td>`;
+    tbody += '</tr>';
+  });
+  tbody += '</tbody>';
+  table.innerHTML = thead + tbody;
+  if(classData.students.length===0){ table.innerHTML = thead + '<tbody><tr><td class="empty-state" colspan="20">Pehle Students tab se students add karein</td></tr></tbody>'; return; }
+  attachMarksAutosave(term);
+}
+
+function attachMarksAutosave(term){
+  const max = TERM_MAX[term];
+  classData.students.forEach(stu=>{
+    classData.subjects.forEach(sub=>{
+      if(sub.hasMarks){
+        const el = document.getElementById(`mk_${stu.id}_${sub.id}`);
+        if(el){
+          el.addEventListener('change', async ()=>{
+            const v = el.value === '' ? null : Math.max(0, Math.min(max, parseFloat(el.value)));
+            classData.marks[stu.id] = classData.marks[stu.id] || {};
+            classData.marks[stu.id][term] = classData.marks[stu.id][term] || {};
+            classData.marks[stu.id][term][sub.id] = v;
+            await storeSet(dataKey(currentClass), classData);
+            const msg = document.getElementById('marksSaveMsg');
+            msg.textContent = 'Auto-saved ✓';
+            setTimeout(()=>{ if(msg.textContent==='Auto-saved ✓') msg.textContent=''; },1200);
+          });
+        }
+      } else {
+        const el = document.getElementById(`gr_${stu.id}_${sub.id}`);
+        if(el){
+          el.addEventListener('change', async ()=>{
+            classData.artGrade[stu.id] = classData.artGrade[stu.id] || {};
+            classData.artGrade[stu.id][term] = classData.artGrade[stu.id][term] || {};
+            classData.artGrade[stu.id][term][sub.id] = el.value;
+            await storeSet(dataKey(currentClass), classData);
+          });
+        }
+      }
+    });
+    const attEl = document.getElementById(`att_${stu.id}`);
+    if(attEl){
+      attEl.addEventListener('change', async ()=>{
+        classData.attendance[stu.id] = classData.attendance[stu.id] || {};
+        classData.attendance[stu.id][term] = attEl.value;
+        await storeSet(dataKey(currentClass), classData);
+      });
+    }
+    const remEl = document.getElementById(`rem_${stu.id}`);
+    if(remEl){
+      remEl.addEventListener('change', async ()=>{
+        classData.remarks[stu.id] = classData.remarks[stu.id] || {};
+        classData.remarks[stu.id][term] = remEl.value;
+        await storeSet(dataKey(currentClass), classData);
+      });
+    }
+  });
+}
+
+/* ---------------- result computation ---------------- */
+function computeStudentTerm(stu, term){
+  // returns {rows:[{name,marks,max,grade,hasMarks}], total, max, percent, grade, passFail}
+  const rows = [];
+  let total = 0, max = 0;
+  let anySubjectFail = false;
+  classData.subjects.forEach(sub=>{
+    if(sub.hasMarks){
+      const m = classData.marks[stu.id] && classData.marks[stu.id][term] ? classData.marks[stu.id][term][sub.id] : null;
+      const subMax = TERM_MAX[term];
+      const val = (m==null) ? 0 : m;
+      const pct = subMax>0 ? (val/subMax*100) : 0;
+      if(pct<40) anySubjectFail = true;
+      rows.push({name:sub.name, marks:(m==null?'-':m), max:subMax, grade: m==null?'-':gradeFromPercent(pct), hasMarks:true});
+      total += val; max += subMax;
+    } else {
+      const g = classData.artGrade[stu.id] && classData.artGrade[stu.id][term] ? classData.artGrade[stu.id][term][sub.id] : null;
+      if(g === 'F') anySubjectFail = true;
+      rows.push({name:sub.name, marks:'-', max:null, grade: g||'-', hasMarks:false});
+    }
+  });
+  const percent = max>0 ? (total/max*100) : 0;
+  const grade = gradeFromPercent(percent);
+  return {rows, total, max, percent, grade, pass: percent>=40 && !anySubjectFail};
+}
+
+function computeStudentCumulative(stu){
+  const rows = [];
+  let grandTotal = 0, grandMax = 0;
+  let anySubjectFail = false;
+  classData.subjects.forEach(sub=>{
+    if(sub.hasMarks){
+      let subTotal = 0, subMax = 0;
+      ['term1','midterm','final'].forEach(term=>{
+        const m = classData.marks[stu.id] && classData.marks[stu.id][term] ? classData.marks[stu.id][term][sub.id] : null;
+        subTotal += (m==null?0:m);
+        subMax += TERM_MAX[term];
+      });
+      const pct = subMax>0 ? (subTotal/subMax*100):0;
+      if(pct<40) anySubjectFail = true;
+      rows.push({name:sub.name, term1: getMark(stu,'term1',sub.id), midterm: getMark(stu,'midterm',sub.id), final: getMark(stu,'final',sub.id), agg: subTotal, aggMax: subMax, grade: gradeFromPercent(pct), hasMarks:true});
+      grandTotal += subTotal; grandMax += subMax;
+    } else {
+      const gT1 = classData.artGrade[stu.id] && classData.artGrade[stu.id].term1 ? classData.artGrade[stu.id].term1[sub.id] : null;
+      const gMid = classData.artGrade[stu.id] && classData.artGrade[stu.id].midterm ? classData.artGrade[stu.id].midterm[sub.id] : null;
+      const gFinal = classData.artGrade[stu.id] && classData.artGrade[stu.id].final ? classData.artGrade[stu.id].final[sub.id] : null;
+      const g = gFinal || gMid || gT1 || null;
+      rows.push({name:sub.name, term1:gT1||'-', midterm:gMid||'-', final:gFinal||'-', agg:'-', aggMax:null, grade:g||'-', hasMarks:false});
+    }
+  });
+  const percent = grandMax>0 ? (grandTotal/grandMax*100):0;
+  return {rows, total:grandTotal, max:grandMax, percent, grade:gradeFromPercent(percent), pass:percent>=40 && !anySubjectFail};
+}
+function getMark(stu, term, subId){
+  const m = classData.marks[stu.id] && classData.marks[stu.id][term] ? classData.marks[stu.id][term][subId] : null;
+  return m==null ? '-' : m;
+}
+
+function ordinal(n){
+  if(n==null) return '-';
+  const v = n % 100;
+  if(v>=11 && v<=13) return n + 'th';
+  switch(n % 10){
+    case 1: return n + 'st';
+    case 2: return n + 'nd';
+    case 3: return n + 'rd';
+    default: return n + 'th';
+  }
+}
+
+function rankStudents(term){
+  // term = 'term1'|'midterm'|'final'|'cumulative' ; returns map studentId->rank (null if failed), plus __total = count of passing students
+  const list = classData.students.map(stu=>{
+    const res = term==='cumulative' ? computeStudentCumulative(stu) : computeStudentTerm(stu, term);
+    return {stu, percent: res.percent, pass: res.pass};
+  });
+  const passing = list.filter(x=>x.pass).sort((a,b)=>b.percent-a.percent);
+  const ranks = {};
+  let rank=0, prevPercent=null, shown=0;
+  passing.forEach(item=>{
+    shown++;
+    if(item.percent!==prevPercent){ rank = shown; prevPercent = item.percent; }
+    ranks[item.stu.id] = rank;
+  });
+  list.filter(x=>!x.pass).forEach(item=>{ ranks[item.stu.id] = null; });
+  ranks.__total = passing.length;
+  return ranks;
+}
+
+/* ---------------- report cards ---------------- */
+function bindReports(){
+  document.getElementById('reportTermSel').addEventListener('change', renderReports);
+  document.getElementById('reportStudentSel').addEventListener('change', renderReports);
+  document.getElementById('printReportsBtn').addEventListener('click', ()=>window.print());
+}
+
+function renderReports(){
+  const out = document.getElementById('reportsOutput');
+  out.innerHTML = '';
+  if(!classData){ out.innerHTML = '<div class="empty-state">Pehle Setup tab se class open karein</div>'; return; }
+  const term = document.getElementById('reportTermSel').value;
+  const sel = document.getElementById('reportStudentSel');
+  const prevVal = sel.value;
+  sel.innerHTML = '<option value="all">All Students</option>' + classData.students.map(s=>`<option value="${s.id}">${s.roll} - ${s.name}</option>`).join('');
+  sel.value = [...sel.options].some(o=>o.value===prevVal) ? prevVal : 'all';
+  const studentId = sel.value;
+  const ranks = rankStudents(term);
+  const students = studentId==='all' ? classData.students : classData.students.filter(s=>s.id===studentId);
+  if(students.length===0){ out.innerHTML = '<div class="empty-state">Koi student nahi mila</div>'; return; }
+
+  students.forEach(stu=>{
+    const card = document.createElement('div');
+    card.className = 'report-card';
+    const logoHtml = school.logo ? `<img src="${school.logo}">` : '';
+    let bodyHtml = '';
+    if(term==='cumulative'){
+      const res = computeStudentCumulative(stu);
+      bodyHtml = `<table><thead><tr><th class="left">Subject</th><th>1st Term<br>/50</th><th>Mid Term<br>/50</th><th>Final<br>/100</th><th>Aggregate<br>/200</th><th>Grade</th></tr></thead><tbody>`;
+      res.rows.forEach(r=>{
+        bodyHtml += `<tr><td class="left">${r.name}</td><td>${r.term1}</td><td>${r.midterm}</td><td>${r.final}</td><td>${r.hasMarks? r.agg+'/'+r.aggMax : '-'}</td><td class="${gradeClass(r.grade)}">${r.grade}</td></tr>`;
+      });
+      bodyHtml += `</tbody></table>`;
+      const remKey='cumulative';
+      const remark = (classData.remarks[stu.id] && classData.remarks[stu.id][remKey]) || autoRemark(res.grade);
+      const failList = res.rows.filter(r=>r.hasMarks && r.grade==='F').map(r=>r.name);
+      card.innerHTML = `
+        <div class="rc-head">${logoHtml}<div><h3>${school.name||'School Name'}</h3><div class="rc-sub">Cumulative Final Result — 1st Term + Mid Term + Annual Exam</div></div></div>
+        <div class="rc-meta">
+          <div><b>Name:</b> ${stu.name}</div>
+          <div><b>Father's Name:</b> ${stu.father||''}</div>
+          <div><b>Class:</b> ${classData.classNo}</div>
+          <div><b>Roll No:</b> ${stu.roll}</div>
+        </div>
+        ${bodyHtml}
+        <div class="rc-summary">
+          <div><b>${res.total}/${res.max}</b>Total Marks</div>
+          <div><b>${res.percent.toFixed(1)}%</b>Percentage</div>
+          <div><b class="${gradeClass(res.grade)}">${res.grade}</b>Overall Grade</div>
+          ${res.pass ? `<div><b>${ordinal(ranks[stu.id])}</b>Rank</div>` : ''}
+          <div><span class="pill ${res.pass?'pass':'fail'}">${res.pass?'PASS':'FAIL'}</span></div>
+        </div>
+        ${!res.pass && failList.length ? `<div class="hint" style="color:var(--bad);">Fail in: ${failList.join(', ')}</div>` : ''}
+        <div class="rc-remarks">
+          <label>Remarks (editable)</label>
+          <textarea data-stu="${stu.id}" data-term="${remKey}">${remark}</textarea>
+        </div>
+        <div class="rc-sign"><div>Class Teacher</div><div>Principal</div></div>
+        <div class="no-print" style="text-align:center; margin-top:14px;"><button class="btn secondary small" data-download-card="true" data-fname="${stu.name.replace(/[^a-zA-Z0-9]+/g,'_')}_Cumulative">⬇ Download This Card</button></div>`;
+    } else {
+      const res = computeStudentTerm(stu, term);
+      bodyHtml = `<table><thead><tr><th class="left">Subject</th><th>Marks<br>/${TERM_MAX[term]}</th><th>Grade</th></tr></thead><tbody>`;
+      res.rows.forEach(r=>{
+        bodyHtml += `<tr><td class="left">${r.name}</td><td>${r.hasMarks? r.marks+'/'+r.max : '-'}</td><td class="${gradeClass(r.grade)}">${r.grade}</td></tr>`;
+      });
+      bodyHtml += `</tbody></table>`;
+      const att = (classData.attendance[stu.id] && classData.attendance[stu.id][term]) || '';
+      const remark = (classData.remarks[stu.id] && classData.remarks[stu.id][term]) || autoRemark(res.grade);
+      const failList = res.rows.filter(r=>r.hasMarks && r.grade==='F').map(r=>r.name);
+      card.innerHTML = `
+        <div class="rc-head">${logoHtml}<div><h3>${school.name||'School Name'}</h3><div class="rc-sub">${TERM_LABEL[term]} Exam Result</div></div></div>
+        <div class="rc-meta">
+          <div><b>Name:</b> ${stu.name}</div>
+          <div><b>Father's Name:</b> ${stu.father||''}</div>
+          <div><b>Class:</b> ${classData.classNo}</div>
+          <div><b>Roll No:</b> ${stu.roll}</div>
+        </div>
+        ${bodyHtml}
+        <div class="rc-summary">
+          <div><b>${res.total}/${res.max}</b>Total Marks</div>
+          <div><b>${res.percent.toFixed(1)}%</b>Percentage</div>
+          <div><b class="${gradeClass(res.grade)}">${res.grade}</b>Overall Grade</div>
+          ${res.pass ? `<div><b>${ordinal(ranks[stu.id])}</b>Rank</div>` : ''}
+          <div><b>${att||'-'}</b>Attendance</div>
+          <div><span class="pill ${res.pass?'pass':'fail'}">${res.pass?'PASS':'FAIL'}</span></div>
+        </div>
+        ${!res.pass && failList.length ? `<div class="hint" style="color:var(--bad);">Fail in: ${failList.join(', ')}</div>` : ''}
+        <div class="rc-remarks">
+          <label>Remarks (editable)</label>
+          <textarea data-stu="${stu.id}" data-term="${term}">${remark}</textarea>
+        </div>
+        <div class="rc-sign"><div>Class Teacher</div><div>Principal</div></div>
+        <div class="no-print" style="text-align:center; margin-top:14px;"><button class="btn secondary small" data-download-card="true" data-fname="${stu.name.replace(/[^a-zA-Z0-9]+/g,'_')}_${TERM_LABEL[term].replace(/[^a-zA-Z0-9]+/g,'_')}">⬇ Download This Card</button></div>`;
+    }
+    out.appendChild(card);
+  });
+
+  out.querySelectorAll('textarea[data-stu]').forEach(ta=>{
+    ta.addEventListener('change', async ()=>{
+      const stuId = ta.dataset.stu, term_ = ta.dataset.term;
+      classData.remarks[stuId] = classData.remarks[stuId] || {};
+      classData.remarks[stuId][term_] = ta.value;
+      await storeSet(dataKey(currentClass), classData);
+    });
+  });
+
+  out.querySelectorAll('button[data-download-card]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const cardEl = btn.closest('.report-card');
+      downloadReportCard(cardEl, btn.dataset.fname + '_ReportCard.html');
+    });
+  });
+}
+
+function downloadReportCard(cardEl, filename){
+  const clone = cardEl.cloneNode(true);
+  const origTAs = cardEl.querySelectorAll('textarea');
+  const cloneTAs = clone.querySelectorAll('textarea');
+  origTAs.forEach((ta,i)=>{ cloneTAs[i].textContent = ta.value; cloneTAs[i].setAttribute('readonly',''); });
+  clone.querySelectorAll('.no-print').forEach(el=>el.remove());
+  const styleEl = document.querySelector('style');
+  const styles = styleEl ? styleEl.innerHTML : '';
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Report Card</title><style>${styles}</style></head><body style="background:#faf6ee; padding:20px 10px;">${clone.outerHTML}</body></html>`;
+  downloadBlob(html, filename, 'text/html;charset=utf-8;');
+}
+
+/* ---------------- marks register ---------------- */
+function bindRegister(){
+  document.getElementById('regTermSel').addEventListener('change', renderRegister);
+  document.getElementById('printRegisterBtn').addEventListener('click', ()=>window.print());
+}
+
+function renderRegister(){
+  const table = document.getElementById('registerTable');
+  table.innerHTML='';
+  if(!classData){ table.innerHTML = '<tr><td class="empty-state">Pehle Setup tab se class open karein</td></tr>'; return; }
+  const term = document.getElementById('regTermSel').value;
+  const ranks = rankStudents(term);
+  let thead = '<thead><tr><th>Roll</th><th>Name</th><th>Father\'s Name</th>';
+  classData.subjects.forEach(s=> thead += `<th>${s.name}</th>`);
+  thead += '<th>Total</th><th>%</th><th>Grade</th><th>Rank</th><th>Attendance</th><th>Result</th></tr></thead>';
+  let tbody = '<tbody>';
+  classData.students.forEach(stu=>{
+    const res = term==='cumulative' ? computeStudentCumulative(stu) : computeStudentTerm(stu, term);
+    tbody += `<tr><td>${stu.roll}</td><td class="left">${stu.name}</td><td class="left">${stu.father||''}</td>`;
+    if(term==='cumulative'){
+      res.rows.forEach(r=> tbody += `<td>${r.hasMarks? r.agg : r.grade}</td>`);
+    } else {
+      res.rows.forEach(r=> tbody += `<td>${r.hasMarks? r.marks : r.grade}</td>`);
+    }
+    const att = (classData.attendance[stu.id] && classData.attendance[stu.id][term==='cumulative'?'final':term]) || '';
+    tbody += `<td>${res.total}/${res.max}</td><td>${res.percent.toFixed(1)}%</td><td class="${gradeClass(res.grade)}">${res.grade}</td><td>${ranks[stu.id]!=null?ordinal(ranks[stu.id]):'—'}</td><td>${att||'-'}</td><td class="${res.pass?'grade-A':'grade-F'}">${res.pass?'PASS':'FAIL'}</td></tr>`;
+  });
+  tbody += '</tbody>';
+  table.innerHTML = thead+tbody;
+  if(classData.students.length===0){ table.innerHTML = thead + '<tbody><tr><td class="empty-state" colspan="20">Koi students nahi</td></tr></tbody>'; }
+}
+
+/* ---------------- export ---------------- */
+function buildExportRows(){
+  const terms = ['term1','midterm','final'];
+  const ranksByTerm = { term1: rankStudents('term1'), midterm: rankStudents('midterm'), final: rankStudents('final'), cumulative: rankStudents('cumulative') };
+  return classData.students.map(stu=>{
+    const row = { 'Roll No': stu.roll, 'Name': stu.name, "Father's Name": stu.father||'' };
+    terms.forEach(term=>{
+      const res = computeStudentTerm(stu, term);
+      classData.subjects.forEach(sub=>{
+        const label = `${sub.name} (${TERM_LABEL[term]})`;
+        if(sub.hasMarks){
+          const m = classData.marks[stu.id] && classData.marks[stu.id][term] ? classData.marks[stu.id][term][sub.id] : null;
+          row[label] = m==null? '' : m;
+        } else {
+          const g = classData.artGrade[stu.id] && classData.artGrade[stu.id][term] ? classData.artGrade[stu.id][term][sub.id] : '';
+          row[label] = g;
+        }
+      });
+      row[`Total (${TERM_LABEL[term]})`] = res.total + '/' + res.max;
+      row[`% (${TERM_LABEL[term]})`] = res.percent.toFixed(1);
+      row[`Grade (${TERM_LABEL[term]})`] = res.grade;
+      row[`Rank (${TERM_LABEL[term]})`] = ranksByTerm[term][stu.id]!=null ? ordinal(ranksByTerm[term][stu.id]) : '-';
+      row[`Result (${TERM_LABEL[term]})`] = res.pass ? 'PASS' : 'FAIL';
+    });
+    const cum = computeStudentCumulative(stu);
+    row['Cumulative Total (Aggregate/200 per subject)'] = cum.total + '/' + cum.max;
+    row['Cumulative %'] = cum.percent.toFixed(1);
+    row['Cumulative Grade'] = cum.grade;
+    row['Cumulative Rank'] = ranksByTerm.cumulative[stu.id]!=null ? ordinal(ranksByTerm.cumulative[stu.id]) : '-';
+    row['Final Result'] = cum.pass ? 'PASS' : 'FAIL';
+    return row;
+  });
+}
+
+function toCSV(rows){
+  if(!rows.length) return '';
+  const headers = Object.keys(rows[0]);
+  const esc = v => { v = (v==null) ? '' : String(v); if(/[",\n]/.test(v)){ v = '"' + v.replace(/"/g,'""') + '"'; } return v; };
+  const lines = [headers.map(esc).join(',')];
+  rows.forEach(r=> lines.push(headers.map(h=>esc(r[h])).join(',')));
+  return lines.join('\r\n');
+}
+
+function downloadBlob(content, filename, mime){
+  const blob = new Blob([content], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function bindExport(){
+  document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
+    if(!requireClass()) return;
+    if(classData.students.length===0){ alert('Is class mein koi student nahi hai. Pehle Students tab se students add karein.'); return; }
+    try{
+      const rows = buildExportRows();
+      const csv = toCSV(rows);
+      downloadBlob(csv, `Class-${currentClass}-Result.csv`, 'text/csv;charset=utf-8;');
+    }catch(e){
+      alert('Export mein masla hua: ' + e.message);
+    }
+  });
+}
+
+/* ---------------- backup / restore ---------------- */
+function bindBackupRestore(){
+  document.getElementById('backupBtn').addEventListener('click', async ()=>{
+    try{
+      const out = {};
+      const schoolInfo = await storeGet('school-info');
+      if(schoolInfo) out['school-info'] = schoolInfo;
+      const lastClass = await storeGet('app-last-class');
+      if(lastClass) out['app-last-class'] = lastClass;
+      const keys = await storeListPrefix('class-data:');
+      for(const keyName of keys){
+        const d = await storeGet(keyName);
+        if(d) out[keyName] = d;
+      }
+      const blob = new Blob([JSON.stringify(out, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'result-system-backup.json';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      document.getElementById('backupMsg').textContent = 'Backup downloaded ✓ (' + (keys.length+ (schoolInfo?1:0)) + ' records)';
+    }catch(e){
+      document.getElementById('backupMsg').textContent = 'Backup failed: ' + e.message;
+    }
+  });
+
+  document.getElementById('restoreBtn').addEventListener('click', async ()=>{
+    const fileInput = document.getElementById('restoreFile');
+    if(!fileInput.files || !fileInput.files[0]){ alert('Pehle backup file (.json) select karein'); return; }
+    const reader = new FileReader();
+    reader.onload = async (e)=>{
+      try{
+        const obj = JSON.parse(e.target.result);
+        let count = 0;
+        for(const key in obj){
+          await storeSet(key, obj[key]);
+          count++;
+        }
+        document.getElementById('backupMsg').textContent = 'Restore ho gaya ✓ (' + count + ' records). Page reload kar rahe hain...';
+        const s = await storeGet('school-info');
+        if(s){ school = s; applySchoolToUI(); }
+        setTimeout(()=>location.reload(), 1200);
+      }catch(err){
+        document.getElementById('backupMsg').textContent = 'Restore failed: file sahi JSON nahi hai.';
+      }
+    };
+    reader.readAsText(fileInput.files[0]);
+  });
+}
+
+})();
+</script>
+</body>
+</html>
